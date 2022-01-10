@@ -6,42 +6,39 @@ import { Canvas, useThree } from "@react-three/fiber"
 
 import Cell from "./components/Cell"
 
-
+const BLACK = "black"
+const WHITE = "blue"
 
 
 function Camera() {
   const { camera } = useThree()
 
   // can not change the position but can modify its value
-  camera.position.z = 20
+  camera.position.z = 50
+  camera.position.x = 25
+  camera.position.y = 25
+
 
   useEffect(() => { console.log(camera) }, [])
   return <perspectiveCamera/>
 } 
 
-const generateMatrix = (size) => {
-  const matrix = []
-  let count = 1
-  for(let row = 0; row < size; row++){
-    let list = []
-    for(let colum = 0; colum < size; colum++){
-      list.push(count++)
-    }
-    matrix.push(list)
-  }
-  return matrix
-}
 
-const generateBoardFromMatrix = matrix => {
+const generateBoardFromMatrix = size => {
   const board = []
-  for(let rowIndex in matrix){
-    for(let columIndex in matrix[rowIndex]){
+
+
+
+  for(let row = 0; row < size; row++){
+
+    for(let colum = 0; colum < size; colum++){
+
       board.push(
         <Cell 
-          key={matrix[rowIndex][columIndex]}
-          cellX={rowIndex} 
-          cellY={columIndex} 
-          cellValue={matrix[rowIndex][columIndex]} 
+          key={`${row}-${colum}`}
+          cellX={row} 
+          cellY={colum} 
+          color = {(row%2 + colum%2)%2 === 1 ? BLACK : WHITE}
         />
       )
     }
@@ -54,12 +51,12 @@ function App() {
   const [board, setBoard] = useState(null)
 
   useEffect(() => {
-    setBoard(generateBoardFromMatrix(generateMatrix(6)))
+    setBoard(generateBoardFromMatrix(50))
   }, [])
 
-  useEffect(() => {
-    console.log(board)
-  }, [board])
+  // useEffect(() => {
+  //   console.log(board)
+  // }, [board])
 
   return (
     <div className="App">
