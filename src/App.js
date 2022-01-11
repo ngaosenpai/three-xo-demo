@@ -2,61 +2,48 @@ import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from "react"
 
-import { Canvas, useThree } from "@react-three/fiber"
+import { Canvas } from "@react-three/fiber"
+import { OrbitControls } from "@react-three/drei"
+
 
 import Cell from "./components/Cell"
-
-const BLACK = "black"
-const WHITE = "blue"
-
-
-function Camera() {
-  const { camera } = useThree()
-
-  // can not change the position but can modify its value
-  camera.position.z = 50
-  camera.position.x = 25
-  camera.position.y = 25
-
-
-  useEffect(() => { console.log(camera) }, [])
-  return <perspectiveCamera/>
-} 
-
-
-const generateBoardFromMatrix = size => {
-  const board = []
+import Group from './components/Group';
+import Camera from "./components/Camera"
+import Point from './components/Point';
+import OrbitControl from './components/OrbitControl';
 
 
 
-  for(let row = 0; row < size; row++){
 
-    for(let colum = 0; colum < size; colum++){
 
-      board.push(
-        <Cell 
-          key={`${row}-${colum}`}
-          cellX={row} 
-          cellY={colum} 
-          color = {(row%2 + colum%2)%2 === 1 ? BLACK : WHITE}
-        />
-      )
-    }
-  }
-  return board
-}
+
+
+
+
 
 function App() {
 
-  const [board, setBoard] = useState(null)
 
+  
+  const [cameraPosition, setCamPos] = useState(null)
+  const boardSize = 6
+
+  
+
+
+  // re center the camera to the center of board
   useEffect(() => {
-    setBoard(generateBoardFromMatrix(50))
+    // console.log(board)
+    setCamPos([boardSize/2, boardSize/2])
+
   }, [])
 
+
+  // // map point
   // useEffect(() => {
-  //   console.log(board)
-  // }, [board])
+
+  // }, [referMatrix])
+  
 
   return (
     <div className="App">
@@ -66,12 +53,26 @@ function App() {
         //   state.scene.background = "white"
         // }}
       >
-        <Camera />
-  
-        {
-          board
-        }
+        <OrbitControl targetX={boardSize/2} targetY={boardSize/2} />
+        <Camera cameraPosition={cameraPosition} />
+        <ambientLight intensity={0.5} />
+        <spotLight position={[10, 15, 10]} angle={0.3} />
+        <Group size={boardSize} />
         
+        {/* <mesh position={[-5, 0, 0]} >
+          <boxGeometry args={[5,5,5]} />
+          <meshBasicMaterial />
+        </mesh> */}
+
+        {/* <Text
+          scale={[10, 10, 10]}
+          color="black" // default
+          anchorX="center" // default
+          anchorY="middle" // default
+        >
+          HELLO WORLD
+        </Text> */}
+      
       </Canvas>
     </div>
   );
