@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { socket } from "../context/socket"
+
 import Cell from './Cell';
 import Point from './Point';
 
@@ -30,6 +32,8 @@ const generateBoardAndMatrix = (size, trigger) => {
 
 function Group({ size }) {
 
+    // const socket = useContext(SocketContext)
+    // console.log(socket)
     let Matrix = null
     // state data
     const [board, setBoard] = useState(null)
@@ -58,8 +62,11 @@ function Group({ size }) {
     }, [])
 
     useEffect(() => {
-        console.log(gr.current)
-    }, [])
+        console.log(socket)
+        socket?.on("connect", () => {
+            console.log(socket.id)
+        })
+    }, [socket])
 
     return (
         <group ref={gr}>
