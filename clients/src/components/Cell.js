@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { TurnContex } from "../context/turn"
 
 function Cell({ cellX, cellY, color, trigger }) {
     
     const [changeColor, changing] = useState(false)
+    const [isYourTurn, setTurn] = useContext(TurnContex)
 
     return (
         <mesh 
             position={[cellX, cellY, 0]}
             onPointerEnter={(e) => {
                 e.stopPropagation()
-                if(!e.object.userData.used){
+                // if(!e.object.userData.used){
                     changing(true)
-                }
+                // }
             }}
             onPointerLeave={(e) => {
                 e.stopPropagation()
@@ -23,9 +25,10 @@ function Cell({ cellX, cellY, color, trigger }) {
             // save the user data here (after they click to put their point)
             onClick={(e) => {
                 e.stopPropagation()
-                if(!e.object.userData.used){
-                    e.object.userData.used = true
-                    trigger(cellX, cellY, "test")
+                console.log(isYourTurn)
+                if(isYourTurn){
+                //     e.object.userData.used = true
+                    trigger(cellX, cellY)
                 }
             }}
         >

@@ -1,11 +1,11 @@
 import React from 'react';
 
-function Point({ text, x, y }) {
+function Point({ text, x, y, color }) {
     
     return (
         <mesh position={[x, y, 0.7]}>
             <boxGeometry args={[0.5, 0.5, 0.5]} /> :
-            <meshLambertMaterial color={text === "x" ? "red" : "blue"} />
+            <meshLambertMaterial color={color} />
         </mesh>
     );
 }

@@ -8,9 +8,10 @@ import Group from './components/Group';
 import Camera from "./components/Camera"
 import OrbitControl from './components/OrbitControl';
 import Modal from './components/Modal';
-import { Text } from "@react-three/drei"
+import { Text, useContextBridge } from "@react-three/drei"
 
 import { socket } from "./context/socket"
+import { TurnContex } from "./context/turn"
 
 function App() {
 
@@ -35,10 +36,14 @@ function App() {
     shouldJoin : false,
     name : undefined,
     color : undefined,
-
+    text: undefined
   })
 
   const [matchTitle, setMatchTitle] = useState("")
+  const [isFirst, setIsFirst] = useState(false)
+
+  const ContextBridge = useContextBridge(TurnContex)
+
 
   // initial
   useEffect(() => {
@@ -53,17 +58,19 @@ function App() {
         ...prev,
         name : user.name,
         color : user.color,
+        text : user.text,
         shouldJoin: true
       }))
     })
 
-    socket.on("start-match", (data) => {
+    socket.on("start-match", ({ data, firstTurn }) => {
 
       setMatch(prev => {
         const opponentId = Object.keys(data).find(key => data[key].name !== prev.name)
         const title = `You Vs ${data[opponentId].name}`
         setMatchTitle(title)
-
+        setIsFirst(data[firstTurn].name === prev.name)
+        
         return {
           ...prev,
           shouldStart: true
@@ -93,6 +100,13 @@ function App() {
     console.log(matchTitle)
   }, [matchTitle])
 
+  useEffect(() => {
+    if(match.name){
+      
+      console.log(`User: ${match.name} go ${isFirst ? 'first' : 'later'}`)
+    }
+  }, [isFirst, match.name])
+
   return (
       <div className="App">
         {
@@ -118,7 +132,14 @@ function App() {
                 matchTitle && 
                 <Text scale={[10, 10, 10]} position={[2, 5, -5]} color={"green"} >{matchTitle}</Text>
               }
-              <Group size={boardSize} />
+              <ContextBridge>
+                <Group 
+                  size={boardSize} 
+                  isFirst={isFirst}
+                  thisUser={match.name}
+                />
+
+              </ContextBridge>
             </Canvas> 
           </>
         }
