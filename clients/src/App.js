@@ -11,7 +11,8 @@ import Modal from './components/Modal';
 import { Text, useContextBridge } from "@react-three/drei"
 
 import { socket } from "./context/socket"
-import { TurnContex } from "./context/turn"
+import { TurnContex, turn } from "./context/turn"
+
 
 function App() {
 
@@ -46,7 +47,7 @@ function App() {
 
   const ContextBridge = useContextBridge(TurnContex)
 
-  const [isYourTurn, setTurn] = useContext(TurnContex)
+  // const [isYourTurn, setTurn] = useContext(TurnContex)
 
   // initial
   useEffect(() => {
@@ -108,16 +109,21 @@ function App() {
       .find(key => data[key].name !== match.name)
       const title = `You Vs ${data[opponentId].name}`
       setMatchTitle(title)
-      setTurn(data[firstTurn].name === match.name)
+      // setTurn(data[firstTurn].name === match.name)
+      turn[0].isYourTurn = data[firstTurn].name === match.name
     }
   }, [match.firstTurn])
 
   useEffect(() => {
-    setMatch(prev => ({
-      ...prev,
-      shouldStart: true
-    }))
+    if(matchTitle){
+      setMatch(prev => ({
+        ...prev,
+        shouldStart: true
+      }))
+
+    }
   }, [matchTitle])
+
 
   return (
       <div className="App">
@@ -147,8 +153,6 @@ function App() {
               <ContextBridge>
                 <Group 
                   size={boardSize} 
-                  isFirst={isFirst}
-                  thisUser={match.name}
                 />
 
               </ContextBridge>

@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, memo } from 'react';
 import { socket } from "../context/socket"
-import { TurnContex } from "../context/turn"
+import { TurnContex, turn } from "../context/turn"
 
 import Cell from './Cell';
 import Point from './Point';
@@ -8,6 +8,7 @@ import Point from './Point';
 const BLACK = "black"
 const WHITE = "rgb(233, 237, 201)"
 let Matrix = null
+
 
 
 const generateBoardAndMatrix = (size, trigger) => {
@@ -50,11 +51,12 @@ function Group({ size }) {
 
     const trigger = (x, y) => {
         // console.log("isYourTurn", isYourTurn)
-        if(!Matrix[x][y].user){
+        if(!Matrix[x][y].user && turn[0].isYourTurn){
             socket.emit("user-fire", { x, y })
         }
     }
 
+    console.log("re render GR")
     
 
     useEffect(() => {
@@ -78,16 +80,17 @@ function Group({ size }) {
                 />
             ])
             Matrix[x][y].user = userName
-            setTurn(prev => !prev)
+            // setTurn(prev => !prev)
+            turn[0].isYourTurn = !turn[0].isYourTurn
 
             console.log(Matrix)
         })
        
     }, [])
 
-    useEffect(() => {
-        console.log("turn ", isYourTurn)
-    }, [isYourTurn])
+    // useEffect(() => {
+    //     console.log("turn ", isYourTurn)
+    // }, [isYourTurn])
 
     return (
         <group ref={gr}>
@@ -101,4 +104,14 @@ function Group({ size }) {
     );
 }
 
-export default Group;
+function areEqual(prevProps, nextProps) {
+    /*
+    return true if passing nextProps to render would return
+    the same result as passing prevProps to render,
+    otherwise return false
+    */ 
+   console.log(prevProps, nextProps, prevProps === nextProps)
+   return prevProps.size === nextProps.size
+}
+
+export default memo(Group, areEqual);

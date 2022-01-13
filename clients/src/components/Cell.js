@@ -4,7 +4,7 @@ import { TurnContex } from "../context/turn"
 function Cell({ cellX, cellY, color, trigger }) {
     
     const [changeColor, changing] = useState(false)
-    const [isYourTurn] = useContext(TurnContex)
+    // const [isYourTurn] = useContext(TurnContex)
 
     return (
         <mesh 
@@ -25,11 +25,11 @@ function Cell({ cellX, cellY, color, trigger }) {
             // save the user data here (after they click to put their point)
             onClick={(e) => {
                 e.stopPropagation()
-                console.log(isYourTurn)
-                if(isYourTurn){
+                // console.log(isYourTurn)
+                // if(isYourTurn){
                 //     e.object.userData.used = true
                     trigger(cellX, cellY)
-                }
+                // }
             }}
         >
             <boxGeometry args={[1,1, 0.5]} />
