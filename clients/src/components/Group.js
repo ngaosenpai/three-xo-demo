@@ -36,7 +36,7 @@ const generateBoardAndMatrix = (size, trigger) => {
 
 
 
-function Group({ size, isFirst, thisUser }) {
+function Group({ size }) {
 
     // const socket = useContext(SocketContext)
     // console.log(socket)
@@ -63,7 +63,7 @@ function Group({ size, isFirst, thisUser }) {
         const [board, referMatrix] = generateBoardAndMatrix(size, trigger)
         setBoard(board)
         Matrix = referMatrix
-        setTurn(isFirst)
+        // setTurn(prev => isFirst)
 
         // socket event handler
         socket.on("sync-user-fire", ({x, y, userName, text, color}) => {
@@ -79,6 +79,8 @@ function Group({ size, isFirst, thisUser }) {
             ])
             Matrix[x][y].user = userName
             setTurn(prev => !prev)
+
+            console.log(Matrix)
         })
        
     }, [])

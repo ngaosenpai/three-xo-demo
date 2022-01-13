@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 
 import { Canvas } from "@react-three/fiber"
 
@@ -36,7 +36,9 @@ function App() {
     shouldJoin : false,
     name : undefined,
     color : undefined,
-    text: undefined
+    text: undefined,
+    matchData : null,
+    firstTurn : undefined
   })
 
   const [matchTitle, setMatchTitle] = useState("")
@@ -44,6 +46,7 @@ function App() {
 
   const ContextBridge = useContextBridge(TurnContex)
 
+  const [isYourTurn, setTurn] = useContext(TurnContex)
 
   // initial
   useEffect(() => {
@@ -66,14 +69,11 @@ function App() {
     socket.on("start-match", ({ data, firstTurn }) => {
 
       setMatch(prev => {
-        const opponentId = Object.keys(data).find(key => data[key].name !== prev.name)
-        const title = `You Vs ${data[opponentId].name}`
-        setMatchTitle(title)
-        setIsFirst(data[firstTurn].name === prev.name)
-        
         return {
           ...prev,
-          shouldStart: true
+          // shouldStart: true,
+          matchData : data,
+          firstTurn
         }
       })
     })
@@ -101,11 +101,23 @@ function App() {
   }, [matchTitle])
 
   useEffect(() => {
-    if(match.name){
+    if(match.firstTurn){
+      const { firstTurn, matchData : data } = match
       
-      console.log(`User: ${match.name} go ${isFirst ? 'first' : 'later'}`)
+      const opponentId = Object.keys(data)
+      .find(key => data[key].name !== match.name)
+      const title = `You Vs ${data[opponentId].name}`
+      setMatchTitle(title)
+      setTurn(data[firstTurn].name === match.name)
     }
-  }, [isFirst, match.name])
+  }, [match.firstTurn])
+
+  useEffect(() => {
+    setMatch(prev => ({
+      ...prev,
+      shouldStart: true
+    }))
+  }, [matchTitle])
 
   return (
       <div className="App">

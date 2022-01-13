@@ -4,7 +4,7 @@ import { TurnContex } from "../context/turn"
 function Cell({ cellX, cellY, color, trigger }) {
     
     const [changeColor, changing] = useState(false)
-    const [isYourTurn, setTurn] = useContext(TurnContex)
+    const [isYourTurn] = useContext(TurnContex)
 
     return (
         <mesh 
