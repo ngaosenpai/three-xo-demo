@@ -1,5 +1,5 @@
 import './App.css';
-import { useContext, useEffect, useState } from "react"
+import { Suspense, useContext, useEffect, useState } from "react"
 
 import { Canvas } from "@react-three/fiber"
 
@@ -12,7 +12,9 @@ import { Text, useContextBridge } from "@react-three/drei"
 
 import { socket } from "./context/socket"
 import { TurnContex, turn } from "./context/turn"
-
+import TurnText from './components/TurnText';
+import WinText from "./components/WinText"
+import Point from './components/Point';
 
 function App() {
 
@@ -39,13 +41,12 @@ function App() {
     color : undefined,
     text: undefined,
     matchData : null,
-    firstTurn : undefined
+    // firstTurn : undefined
   })
 
-  const [matchTitle, setMatchTitle] = useState("")
-  const [isFirst, setIsFirst] = useState(false)
+  const [matchTitle, setMatchTitle] = useState(undefined)
 
-  const ContextBridge = useContextBridge(TurnContex)
+
 
   // const [isYourTurn, setTurn] = useContext(TurnContex)
 
@@ -67,18 +68,21 @@ function App() {
       }))
     })
 
-    socket.on("start-match", ({ data, firstTurn }) => {
-
+    socket.on("start-match", (data) => {
+      console.log(data)
       setMatch(prev => {
         return {
           ...prev,
           // shouldStart: true,
           matchData : data,
-          firstTurn
+    
         }
       })
     })
-
+  
+    socket.on("set-first-turn", firstTurn => {
+      turn[0].isYourTurn = socket.id === firstTurn
+    })
 
     socket.emit("get-number-of-user")
   }, [])
@@ -97,25 +101,23 @@ function App() {
     }
   }, [isGameAvailable])
 
-  useEffect(() => {
-    console.log(matchTitle)
-  }, [matchTitle])
 
   useEffect(() => {
-    if(match.firstTurn){
-      const { firstTurn, matchData : data } = match
+    if(match.matchData){
+      const { matchData : data } = match
       
       const opponentId = Object.keys(data)
       .find(key => data[key].name !== match.name)
       const title = `You Vs ${data[opponentId].name}`
       setMatchTitle(title)
       // setTurn(data[firstTurn].name === match.name)
-      turn[0].isYourTurn = data[firstTurn].name === match.name
+      // turn[0].isYourTurn = data[firstTurn].name === match.name
     }
-  }, [match.firstTurn])
+  }, [match.matchData])
 
   useEffect(() => {
     if(matchTitle){
+      console.log(matchTitle)
       setMatch(prev => ({
         ...prev,
         shouldStart: true
@@ -137,6 +139,8 @@ function App() {
               !match.shouldStart && <Modal />
             }
             <Canvas
+              shadows={true}
+              shadowMap
               // onCreated={state => {
               //   console.log(state)
               //   state.scene.background = "white"
@@ -144,18 +148,29 @@ function App() {
             >
               <OrbitControl targetX={boardSize/2} targetY={boardSize/2} />
               <Camera cameraPosition={cameraPosition} />
+              <directionalLight intensity={0.5} castShadow={true} />
               <ambientLight intensity={0.5} />
-              <spotLight position={[10, 15, 10]} angle={0.3} />
               {
                 matchTitle && 
                 <Text scale={[10, 10, 10]} position={[2, 5, -5]} color={"green"} >{matchTitle}</Text>
               }
-              <ContextBridge>
-                <Group 
-                  size={boardSize} 
-                />
+              <TurnText />
+              <WinText />
 
-              </ContextBridge>
+              <Suspense fallback={null}>
+              <Group 
+                size={boardSize} 
+              />
+              </Suspense>
+              {/* <Suspense fallback={null}>
+
+                <Point  text="x" x={0} y ={0} />
+                <Point  text="x" x={1} y={1} />
+              </Suspense> */}
+
+             
+
+
             </Canvas> 
           </>
         }

@@ -8,6 +8,7 @@ function Cell({ cellX, cellY, color, trigger }) {
 
     return (
         <mesh 
+            receiveShadow={true}
             position={[cellX, cellY, 0]}
             onPointerEnter={(e) => {
                 e.stopPropagation()
